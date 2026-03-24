@@ -836,7 +836,8 @@ function generateReport() {
 // ─────────────────────────────────────────
 function buildReportA(p, personaKey) {
   const num = personaKey.replace('P', '');
-  const imgPath = `images/persona_${num}.png`;
+  // 파일명이 persona_a1.png 형태로 되어 있으므로 'a'를 추가합니다.
+  const imgPath = `images/persona_a${num}.png`;
 
   return `
   <div class="report-hero">
@@ -1011,20 +1012,29 @@ function buildReportB(avgScores, weakTwo, eff, rx) {
 // ─────────────────────────────────────────
 // SAVE & RESTART
 // ─────────────────────────────────────────
-function saveReport() {
+async function saveReport() {
   const reportElement = document.getElementById('report-content');
   if (!reportElement) return;
 
   showToast('리포트 이미지를 생성하는 중...');
 
+  // 렌더링 안정을 위해 잠시 대기
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   html2canvas(reportElement, {
     backgroundColor: '#0A0E1A',
     scale: 2,
     useCORS: true,
-    logging: false
+    logging: false,
+    width: reportElement.offsetWidth,
+    height: reportElement.offsetHeight,
+    windowWidth: reportElement.scrollWidth,
+    windowHeight: reportElement.scrollHeight,
+    x: 0,
+    y: window.scrollY
   }).then(canvas => {
     const link = document.createElement('a');
-    link.download = `진단리포트_${state.name}.png`;
+    link.download = `진단리포트_${state.name || '한가온'}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
     showToast('리포트가 저장되었습니다!');
